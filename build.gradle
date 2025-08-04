@@ -34,10 +34,25 @@ tasks.withType(JavaCompile).configureEach {
 	options.release.set(11)
 }
 
+test {
+	jvmArgs '-ea'
+}
+
 tasks.register('shadowJar', Jar) {
 	dependsOn configurations.testRuntimeClasspath
 	manifest {
-		attributes('Main-Class': 'com.example.ExamplePluginTest', 'Multi-Release': true)
+		attributes('Main-Class': 'fiish.FiishTileIndicatorPluginTest', 'Multi-Release': true)
+	}
+	
+	// Add JVM args for assertions and developer mode
+	doLast {
+		// Create a wrapper script for running with assertions enabled and developer mode
+		def wrapperScript = new File("${buildDir}/run-test.bat")
+		wrapperScript.text = """@echo off
+cd "${projectDir}"
+java -ea -Xmx4g -Xms2g -jar "build/libs/${archiveFileName.get()}" --developer-mode --debug
+"""
+		wrapperScript.setExecutable(true)
 	}
 
 	duplicatesStrategy = DuplicatesStrategy.EXCLUDE

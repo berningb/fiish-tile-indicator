@@ -1,2 +1,3 @@
 # Example
-An example greeter plugin
+.\gradlew shadowJar 
+.\build\run-test.bat
