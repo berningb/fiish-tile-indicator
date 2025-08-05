@@ -7,10 +7,13 @@ import net.runelite.client.config.ConfigSection;
 
 import javax.annotation.Nullable;
 import java.awt.*;
+
 @ConfigGroup("fiishtile")
-public interface FiishTileIndicatorConfig extends Config
+public interface FiishIndicatorsConfig extends Config
 {
+	// ========================
 	// Player Tile Settings
+	// ========================
 	@ConfigSection(
 		name = "Player Tile Settings",
 		description = "Settings for your own player tile",
@@ -46,7 +49,9 @@ public interface FiishTileIndicatorConfig extends Config
 	)
 	default boolean flashPlayerTile() { return true; }
 
+	// ========================
 	// Enemy Tile Settings
+	// ========================
 	@ConfigSection(
 		name = "Enemy Tile Settings",
 		description = "Settings for highlighting enemy tiles",
@@ -128,7 +133,9 @@ public interface FiishTileIndicatorConfig extends Config
 	@Nullable
 	Color enemyColorRange2();
 
+	// ========================
 	// Death Timer Settings
+	// ========================
 	@ConfigSection(
 		name = "Death Timer Settings",
 		description = "Settings for displaying death timers",
@@ -173,4 +180,59 @@ public interface FiishTileIndicatorConfig extends Config
 	)
 	@Nullable
 	default Color npcDeathColor() { return new Color(255, 140, 0); }
+
+	// ========================
+	// Estimated HP Settings
+	// ========================
+	@ConfigSection(
+		name = "Estimated HP Settings",
+		description = "Show estimated HP above players",
+		position = 3
+	)
+	String hpSection = "hpSection";
+
+	@ConfigItem(
+		keyName = "showEstimatedHp",
+		name = "Show Estimated HP",
+		description = "Display estimated HP and healing above other players",
+		section = hpSection,
+		position = 0
+	)
+	default boolean showEstimatedHp() { return true; }
+
+	@ConfigItem(
+		keyName = "textColor",
+		name = "HP Text Color",
+		description = "Color of the estimated HP text",
+		section = hpSection,
+		position = 1
+	)
+	default Color textColor() { return Color.RED; }
+
+	@ConfigItem(
+		keyName = "textYOffset",
+		name = "HP Text Y Offset",
+		description = "Vertical offset of the HP text",
+		section = hpSection,
+		position = 2
+	)
+	default int textYOffset() { return 20; }
+
+	@ConfigItem(
+		keyName = "healTextColor",
+		name = "Heal Text Color",
+		description = "Color of the healing text (+HP)",
+		section = hpSection,
+		position = 3
+	)
+	default Color healTextColor() { return Color.GREEN; }
+
+	@ConfigItem(
+		keyName = "healYOffset",
+		name = "Heal Text Y Offset",
+		description = "Vertical offset of the healing animation",
+		section = hpSection,
+		position = 4
+	)
+	default int healYOffset() { return 35; }
 }

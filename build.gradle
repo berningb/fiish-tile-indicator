@@ -41,7 +41,7 @@ test {
 tasks.register('shadowJar', Jar) {
 	dependsOn configurations.testRuntimeClasspath
 	manifest {
-		attributes('Main-Class': 'fiish.FiishTileIndicatorPluginTest', 'Multi-Release': true)
+		attributes('Main-Class': 'fiish.FiishIndicatorPluginTest', 'Multi-Release': true)
 	}
 	
 	// Add JVM args for assertions and developer mode

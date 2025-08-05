@@ -2,13 +2,12 @@ package fiish;
 
 import net.runelite.client.RuneLite;
 import net.runelite.client.externalplugins.ExternalPluginManager;
-import fiish.FiishTileIndicatorPlugin;
 
-public class FiishTileIndicatorPluginTest
+public class FiishIndicatorPluginTest
 {
 	public static void main(String[] args) throws Exception
 	{
-		ExternalPluginManager.loadBuiltin(FiishTileIndicatorPlugin.class);
+		ExternalPluginManager.loadBuiltin(FiishIndicatorsPlugin.class);
 		RuneLite.main(args);
 	}
 }
