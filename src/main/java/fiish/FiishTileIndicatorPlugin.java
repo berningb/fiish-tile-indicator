@@ -1,7 +1,6 @@
 package fiish;
 
 import com.google.inject.Provides;
-import fiish.FiishTileIndicatorConfig;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.*;
 import net.runelite.api.coords.LocalPoint;
@@ -36,6 +35,7 @@ public class FiishTileIndicatorPlugin extends Plugin
 	private boolean shouldFlash = false;
 
 	private final Map<WorldPoint, Instant> deaths = new HashMap<>();
+	private final Map<WorldPoint, Instant> npcDeaths = new HashMap<>();
 	private final Map<Player, Integer> lastKnownHp = new HashMap<>();
 
 	@Override
@@ -51,6 +51,7 @@ public class FiishTileIndicatorPlugin extends Plugin
 		overlayManager.remove(overlay);
 		overlay = null;
 		deaths.clear();
+		npcDeaths.clear();
 		lastKnownHp.clear();
 	}
 
@@ -85,10 +86,18 @@ public class FiishTileIndicatorPlugin extends Plugin
 		if (hp == null || hp != 0)
 			return;
 
-		if (deadPlayer == client.getLocalPlayer() && !config.trackSelfDeath())
-			return;
-
 		deaths.put(deadPlayer.getWorldLocation(), Instant.now());
+	}
+
+	@Subscribe
+	public void onNpcDespawned(net.runelite.api.events.NpcDespawned event)
+	{
+		if (!config.showNpcDeathTimers()) return;
+
+		NPC npc = event.getNpc();
+		if (npc == null || npc.getName() == null || npc.getHealthRatio() > 0) return;
+
+		npcDeaths.put(npc.getWorldLocation(), Instant.now());
 	}
 
 	private class PlayerTileOverlay extends OverlayPanel
@@ -110,7 +119,7 @@ public class FiishTileIndicatorPlugin extends Plugin
 				drawCorners(graphics, player.getLocalLocation(), config.highlightColor());
 			}
 
-			if (!config.flashEnemyTiles() || shouldFlash)
+			if (config.highlightEnemies() && (!config.flashEnemyTiles() || shouldFlash))
 			{
 				for (Player other : client.getPlayers())
 				{
@@ -141,11 +150,32 @@ public class FiishTileIndicatorPlugin extends Plugin
 					LocalPoint lp = LocalPoint.fromWorld(client, entry.getKey());
 					if (lp != null)
 					{
-						net.runelite.api.Point textPoint = Perspective.getCanvasTextLocation(client, graphics, lp, secondsLeft + "s", 0);
+						net.runelite.api.Point textPoint = Perspective.getCanvasTextLocation(client, graphics, lp, "P: " + secondsLeft + "s", 0);
 						if (textPoint != null)
 						{
-							graphics.setColor(Color.WHITE);
-							graphics.drawString(secondsLeft + "s", textPoint.getX(), textPoint.getY());
+							graphics.setColor(config.playerDeathColor() != null ? config.playerDeathColor() : Color.WHITE);
+							graphics.drawString("P: " + secondsLeft + "s", textPoint.getX(), textPoint.getY());
+						}
+					}
+				}
+			}
+
+			if (config.showNpcDeathTimers())
+			{
+				Instant now = Instant.now();
+				for (Map.Entry<WorldPoint, Instant> entry : npcDeaths.entrySet())
+				{
+					int secondsLeft = 60 - (int)(now.getEpochSecond() - entry.getValue().getEpochSecond());
+					if (secondsLeft <= 0) continue;
+
+					LocalPoint lp = LocalPoint.fromWorld(client, entry.getKey());
+					if (lp != null)
+					{
+						net.runelite.api.Point textPoint = Perspective.getCanvasTextLocation(client, graphics, lp, "N: " + secondsLeft + "s", 0);
+						if (textPoint != null)
+						{
+							graphics.setColor(config.npcDeathColor() != null ? config.npcDeathColor() : Color.ORANGE);
+							graphics.drawString("N: " + secondsLeft + "s", textPoint.getX(), textPoint.getY());
 						}
 					}
 				}
